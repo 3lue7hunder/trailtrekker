@@ -5,38 +5,38 @@ class TrailTrekker {
         this.savedTrails = this.loadSavedTrails();
         this.reviews = this.loadReviews();
         this.filteredTrails = [];
-        this.currentView = 'home';
-        
+        this.currentView = 'trails'; // Changed from 'home' to 'trails'
+        this.uiManager = null;
+
         this.init();
     }
 
     async init() {
+        // Wait for UIManager to be available
+        if (window.uiManager) {
+            this.uiManager = window.uiManager;
+        } else {
+            // Create UIManager if not available
+            this.uiManager = new UIManager();
+        }
+
         try {
             // Load trail data
             this.trails = await TrailData.loadTrails();
             this.filteredTrails = [...this.trails];
+            console.log('Loaded trails:', this.trails.length);
         } catch (error) {
             console.error('Failed to load trail data:', error);
-            // Fallback to empty array or show error message
             this.trails = [];
             this.filteredTrails = [];
         }
-        
+
         this.setupEventListeners();
         this.renderTrails();
-        UI.updateSavedTrailsCount(this.savedTrails.length);
+        this.updateSavedTrailsCount(this.savedTrails.length);
     }
 
     setupEventListeners() {
-        // Navigation
-        const savedTrailsLink = document.getElementById('savedTrailsLink');
-        if (savedTrailsLink) {
-            savedTrailsLink.addEventListener('click', (e) => {
-                e.preventDefault();
-                this.showSavedTrails();
-            });
-        }
-
         // Search and filters
         const searchForm = document.getElementById('searchForm');
         if (searchForm) {
@@ -55,29 +55,90 @@ class TrailTrekker {
             }
         });
 
-        // Modal events
-        const closeModal = document.getElementById('closeModal');
-        if (closeModal) {
-            closeModal.addEventListener('click', () => {
-                UI.hideModal();
+        // Clear filters button
+        const clearFilters = document.getElementById('clearFilters');
+        if (clearFilters) {
+            clearFilters.addEventListener('click', () => {
+                const searchInput = document.getElementById('searchInput');
+                const difficultyFilter = document.getElementById('difficultyFilter');
+                const lengthFilter = document.getElementById('lengthFilter');
+                const featuresFilter = document.getElementById('featuresFilter');
+                
+                if (searchInput) searchInput.value = '';
+                if (difficultyFilter) difficultyFilter.value = '';
+                if (lengthFilter) lengthFilter.value = '';
+                if (featuresFilter) featuresFilter.value = '';
+                
+                this.filterTrails();
             });
         }
 
+        // View toggle buttons
+        const gridView = document.getElementById('gridView');
+        const listView = document.getElementById('listView');
+
+        if (gridView && listView) {
+            gridView.addEventListener('click', () => {
+                gridView.classList.add('active');
+                listView.classList.remove('active');
+                const trailsGrid = document.getElementById('trailsGrid');
+                if (trailsGrid) {
+                    trailsGrid.className = 'trails-grid';
+                }
+            });
+            
+            listView.addEventListener('click', () => {
+                listView.classList.add('active');
+                gridView.classList.remove('active');
+                const trailsGrid = document.getElementById('trailsGrid');
+                if (trailsGrid) {
+                    trailsGrid.className = 'trails-list';
+                }
+            });
+        }
+
+        // Modal close button
+        const closeModal = document.getElementById('closeModal');
+        if (closeModal) {
+            closeModal.addEventListener('click', () => {
+                this.hideModal();
+            });
+        }
+
+        // Close modal on outside click
         window.addEventListener('click', (e) => {
             const modal = document.getElementById('trailModal');
             if (e.target === modal) {
-                UI.hideModal();
+                this.hideModal();
             }
         });
 
-        // Home link navigation
-        const homeLinks = document.querySelectorAll('a[href="#home"]');
-        homeLinks.forEach(link => {
-            link.addEventListener('click', (e) => {
-                e.preventDefault();
-                this.showAllTrails();
+        // Event delegation for dynamically generated trail cards
+        const trailsGrid = document.getElementById('trailsGrid');
+        if (trailsGrid) {
+            trailsGrid.addEventListener('click', (e) => {
+                const card = e.target.closest('.trail-card');
+                if (!card) return;
+
+                const trailId = parseInt(card.dataset.trailId, 10);
+                if (isNaN(trailId)) return;
+
+                // Check if clicked element is the Save button
+                if (e.target.classList.contains('btn-secondary')) {
+                    e.stopPropagation();
+                    this.toggleSaveTrail(trailId);
+                }
+                // Check if clicked element is the View Details button
+                else if (e.target.classList.contains('btn-primary')) {
+                    e.stopPropagation();
+                    this.showTrailDetails(trailId);
+                }
+                // Click on card itself
+                else if (!e.target.classList.contains('btn')) {
+                    this.showTrailDetails(trailId);
+                }
             });
-        });
+        }
     }
 
     filterTrails() {
@@ -113,15 +174,23 @@ class TrailTrekker {
 
     renderTrails() {
         const trailsGrid = document.getElementById('trailsGrid');
+        const resultsCount = document.getElementById('resultsCount');
+        
         if (!trailsGrid) return;
 
         const trails = this.currentView === 'saved' ? this.getSavedTrailsData() : this.filteredTrails;
+
+        // Update results count
+        if (resultsCount) {
+            const countText = trails.length === 1 ? '1 trail found' : `${trails.length} trails found`;
+            resultsCount.textContent = countText;
+        }
 
         if (trails.length === 0) {
             const message = this.currentView === 'saved' 
                 ? 'No saved trails yet. Start exploring and save your favorites!'
                 : 'No trails found matching your criteria.';
-            trailsGrid.innerHTML = `<p>${message}</p>`;
+            trailsGrid.innerHTML = `<p class="no-results">${message}</p>`;
             return;
         }
 
@@ -130,7 +199,7 @@ class TrailTrekker {
 
     createTrailCard(trail) {
         return `
-            <div class="trail-card" onclick="app.showTrailDetails(${trail.id})">
+            <div class="trail-card" data-trail-id="${trail.id}">
                 <div class="trail-image"></div>
                 <div class="trail-content">
                     <div class="trail-header">
@@ -159,14 +228,14 @@ class TrailTrekker {
                     </div>
                     <div class="trail-tags">
                         ${trail.features.slice(0, 3).map(feature => 
-                            `<span class="tag">${feature.replace('-', ' ')}</span>`
+                            `<span class="tag">${feature.replace(/-/g, ' ')}</span>`
                         ).join('')}
                     </div>
-                    <div class="trail-actions" onclick="event.stopPropagation()">
-                        <button class="btn btn-primary" onclick="app.showTrailDetails(${trail.id})">
+                    <div class="trail-actions">
+                        <button class="btn btn-primary">
                             View Details
                         </button>
-                        <button class="btn btn-secondary" onclick="app.toggleSaveTrail(${trail.id})">
+                        <button class="btn btn-secondary">
                             ${this.savedTrails.includes(trail.id) ? 'Saved ✓' : 'Save Trail'}
                         </button>
                     </div>
@@ -179,102 +248,133 @@ class TrailTrekker {
         const trail = this.trails.find(t => t.id === trailId);
         if (!trail) return;
 
-        UI.showTrailModal(trail, this.savedTrails.includes(trailId));
-        
-        // Initialize map after modal is shown
-        setTimeout(() => {
-            TrailMap.initMap('trailMap', trail.coordinates, trail.name);
-        }, 100);
+        this.showTrailModal(trail, this.savedTrails.includes(trailId));
+    }
 
-        // Load weather data
-        WeatherService.getWeatherForTrail(trail.coordinates)
-            .then(weather => {
-                UI.updateWeatherInfo(weather);
-            })
-            .catch(error => {
-                console.error('Failed to load weather:', error);
-            });
+    showTrailModal(trail, isSaved) {
+        const modal = document.getElementById('trailModal');
+        const modalTitle = document.getElementById('modalTitle');
+        const modalBody = document.getElementById('modalBody');
+
+        if (!modal || !modalTitle || !modalBody) return;
+
+        modalTitle.textContent = trail.name;
+        modalBody.innerHTML = `
+            <div class="trail-details">
+                <div class="trail-info-grid">
+                    <div class="info-item">
+                        <strong>Location:</strong> ${trail.location}
+                    </div>
+                    <div class="info-item">
+                        <strong>Length:</strong> ${trail.length} miles
+                    </div>
+                    <div class="info-item">
+                        <strong>Difficulty:</strong> ${trail.difficulty}
+                    </div>
+                    <div class="info-item">
+                        <strong>Elevation Gain:</strong> ${trail.elevation} ft
+                    </div>
+                    <div class="info-item">
+                        <strong>Rating:</strong> ⭐ ${trail.rating}
+                    </div>
+                    <div class="info-item">
+                        <strong>Estimated Time:</strong> ${trail.estimatedTime}
+                    </div>
+                </div>
+                
+                <div class="trail-description">
+                    <h3>Description</h3>
+                    <p>${trail.description}</p>
+                </div>
+                
+                <div class="trail-features">
+                    <h3>Features</h3>
+                    <div class="features-list">
+                        ${trail.features.map(feature => 
+                            `<span class="feature-tag">${feature.replace(/-/g, ' ')}</span>`
+                        ).join('')}
+                    </div>
+                </div>
+                
+                <div class="trail-tips">
+                    <h3>Tips</h3>
+                    <p>${trail.tips}</p>
+                </div>
+                
+                <div class="trail-actions">
+                    <button class="btn btn-secondary" onclick="app.toggleSaveTrail(${trail.id})">
+                        ${isSaved ? 'Saved ✓' : 'Save Trail'}
+                    </button>
+                </div>
+            </div>
+        `;
+
+        modal.style.display = 'block';
+    }
+
+    hideModal() {
+        const modal = document.getElementById('trailModal');
+        if (modal) {
+            modal.style.display = 'none';
+        }
     }
 
     toggleSaveTrail(trailId) {
         const index = this.savedTrails.indexOf(trailId);
-        
+
         if (index > -1) {
             this.savedTrails.splice(index, 1);
-            UI.showNotification('Trail removed from saved list', 'success');
+            this.showNotification('Trail removed from saved list', 'success');
         } else {
             this.savedTrails.push(trailId);
-            UI.showNotification('Trail saved successfully!', 'success');
+            this.showNotification('Trail saved successfully!', 'success');
         }
-        
+
         this.saveSavedTrails();
-        UI.updateSavedTrailsCount(this.savedTrails.length);
-        
-        // Update UI if we're currently viewing saved trails
+        this.updateSavedTrailsCount(this.savedTrails.length);
+
         if (this.currentView === 'saved') {
             this.renderTrails();
         }
-        
-        // Update save button in modal if open
-        UI.updateSaveButton(trailId, this.savedTrails.includes(trailId));
+
+        this.updateSaveButton(trailId, this.savedTrails.includes(trailId));
+    }
+
+    updateSaveButton(trailId, isSaved) {
+        const buttons = document.querySelectorAll(`[data-trail-id="${trailId}"] .btn-secondary`);
+        buttons.forEach(button => {
+            button.textContent = isSaved ? 'Saved ✓' : 'Save Trail';
+        });
+    }
+
+    showNotification(message, type = 'success') {
+        if (this.uiManager) {
+            this.uiManager.showNotification(message, type);
+        } else {
+            // Fallback notification
+            console.log(`${type.toUpperCase()}: ${message}`);
+        }
+    }
+
+    updateSavedTrailsCount(count) {
+        const countElement = document.getElementById('savedCount');
+        if (countElement) {
+            countElement.textContent = count;
+        }
     }
 
     showSavedTrails() {
         this.currentView = 'saved';
-        this.showSection('savedTrails');
         this.renderTrails();
     }
 
     showAllTrails() {
-        this.currentView = 'home';
-        this.showSection('trails');
+        this.currentView = 'trails';
         this.renderTrails();
-    }
-
-    showSection(sectionId) {
-        // Hide all sections
-        const sections = ['trails', 'savedTrails'];
-        sections.forEach(id => {
-            const section = document.getElementById(id);
-            if (section) {
-                section.classList.add('hidden');
-            }
-        });
-
-        // Show target section
-        const targetSection = document.getElementById(sectionId);
-        if (targetSection) {
-            targetSection.classList.remove('hidden');
-        }
     }
 
     getSavedTrailsData() {
         return this.trails.filter(trail => this.savedTrails.includes(trail.id));
-    }
-
-    submitReview(event, trailId) {
-        event.preventDefault();
-        
-        const form = event.target;
-        const reviewData = {
-            trailId: trailId,
-            author: form.reviewerName.value,
-            rating: parseInt(form.reviewRating.value),
-            comment: form.reviewComment.value,
-            date: new Date().toISOString()
-        };
-
-        Reviews.addReview(reviewData);
-        UI.showNotification('Review submitted successfully!', 'success');
-        
-        // Reset form
-        form.reset();
-        
-        // Refresh reviews display
-        const reviewsList = document.getElementById('reviewsList');
-        if (reviewsList) {
-            Reviews.renderReviews(trailId, reviewsList);
-        }
     }
 
     loadSavedTrails() {
@@ -296,15 +396,22 @@ class TrailTrekker {
     }
 
     loadReviews() {
-        return Reviews.loadReviews();
+        // Fallback if Reviews module not available
+        try {
+            return Reviews ? Reviews.loadReviews() : [];
+        } catch (error) {
+            console.error('Reviews module not available:', error);
+            return [];
+        }
     }
 }
 
 // Initialize app when DOM is loaded
 let app;
 document.addEventListener('DOMContentLoaded', () => {
-    app = new TrailTrekker();
+    // Small delay to ensure all modules are loaded
+    setTimeout(() => {
+        app = new TrailTrekker();
+        window.app = app; // Make available globally
+    }, 100);
 });
-
-// Make app globally accessible for onclick handlers
-window.app = app;

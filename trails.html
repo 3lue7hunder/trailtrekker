@@ -9,13 +9,17 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/leaflet.css" />
     <link rel="stylesheet" href="styles/styles.css">
     <link rel="stylesheet" href="styles/responsive.css">
+    
+    <!-- Load scripts -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/leaflet.min.js"></script>
-    <script src="scripts/trailData.js"></script>
-    <script src="scripts/ui.js"></script>
-    <script src="scripts/main.js"></script>
-    <script src="scripts/map.js"></script>
-    <script src="scripts/reviews.js"></script>
-    <script src="scripts/weather.js"></script>
+    <script src="scripts/trailData.js" defer></script>
+    <script src="scripts/ui.js" defer></script>
+    <script src="scripts/main.js" defer></script>
+    
+    <!-- load if available -->
+    <script src="scripts/map.js" defer onerror="console.warn('Map module not available')"></script>
+    <script src="scripts/reviews.js" defer onerror="console.warn('Reviews module not available')"></script>
+    <script src="scripts/weather.js" defer onerror="console.warn('Weather module not available')"></script>
 </head>
 <body>
     <header>
@@ -94,6 +98,7 @@
                 <div id="trailsGrid" class="trails-grid">
                     <div class="loading">
                         <div class="spinner"></div>
+                        <p>Loading trails...</p>
                     </div>
                 </div>
             </div>
@@ -101,7 +106,7 @@
     </main>
 
     <!-- Trail Detail Modal -->
-    <div id="trailModal" class="modal">
+    <div id="trailModal" class="modal" style="display: none;">
         <div class="modal-content">
             <div class="modal-header">
                 <h2 class="modal-title" id="modalTitle">Trail Details</h2>
