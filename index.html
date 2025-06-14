@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TrailTrekker - Discover Local Hiking Trails</title>
+    <link rel="icon" type="image/x-icon" href="imgs/favicon.ico">
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700&family=Open+Sans:wght@300;400;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/leaflet.css" />
+    <link rel="stylesheet" href="styles/styles.css">
+    <link rel="stylesheet" href="styles/responsive.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/leaflet.min.js"></script>
+    <script src="scripts/trailData.js"></script>
+    <script src="scripts/ui.js"></script>
+    <script src="scripts/main.js"></script>
+    <script src="scripts/map.js"></script>
+    <script src="scripts/reviews.js"></script>
+    <script src="scripts/weather.js"></script>
+</head>
+<body>
+    <header>
+        <div class="container">
+            <div class="header-content">
+                <div class="logo">
+                    <img src="imgs/logo.png" alt="TrailTrekker Logo" class="logo-img">
+                    TrailTrekker
+                </div>
+                <nav>
+                    <ul>
+                        <li><a href="index.html" class="nav-active">Home</a></li>
+                        <li><a href="trails.html">Trails</a></li>
+                        <li><a href="saved.html">My Treks</a></li>
+                    </ul>
+                </nav>
+            </div>
+        </div>
+    </header>
+
+    <main>
+        <!-- Hero Section -->
+        <section class="hero" id="home">
+            <div class="container">
+                <h1>Discover Amazing Hiking Trails</h1>
+                <p>Explore local trails, read reviews, and plan your next adventure</p>
+                <a href="trails.html" class="btn btn-hero">Start Exploring</a>
+            </div>
+        </section>
+
+        <!-- Featured Trails Section -->
+        <section class="featured-section">
+            <div class="container">
+                <h2 class="section-title">Featured Trails</h2>
+                <div id="featuredTrails" class="trails-grid">
+                    <div class="loading">
+                        <div class="spinner"></div>
+                    </div>
+                </div>
+                <div class="text-center">
+                    <a href="trails.html" class="btn btn-primary">View All Trails</a>
+                </div>
+            </div>
+        </section>
+
+        <!-- Features Section -->
+        <section class="features-section">
+            <div class="container">
+                <h2 class="section-title">Why Choose TrailTrekker?</h2>
+                <div class="features-grid">
+                    <div class="feature-card">
+                        <div class="feature-icon">🗺️</div>
+                        <h3>Detailed Trail Maps</h3>
+                        <p>Interactive maps with GPS coordinates and trail markers</p>
+                    </div>
+                    <div class="feature-card">
+                        <div class="feature-icon">⭐</div>
+                        <h3>User Reviews</h3>
+                        <p>Real reviews from fellow hikers about trail conditions</p>
+                    </div>
+                    <div class="feature-card">
+                        <div class="feature-icon">🌤️</div>
+                        <h3>Weather Updates</h3>
+                        <p>Live weather conditions and forecasts for each trail</p>
+                    </div>
+                    <div class="feature-card">
+                        <div class="feature-icon">📱</div>
+                        <h3>Mobile Friendly</h3>
+                        <p>Access trail information anywhere with our responsive design</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <footer>
+        <div class="container">
+            <p>&copy; 2025 TrailTrekker. Explore responsibly, leave no trace.</p>
+        </div>
+    </footer>
+</body>
+</html>

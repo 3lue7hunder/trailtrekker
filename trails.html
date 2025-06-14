@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TrailTrekker - Discover Local Hiking Trails</title>
+    <link rel="icon" type="image/x-icon" href="imgs/favicon.ico">
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700&family=Open+Sans:wght@300;400;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/leaflet.css" />
+    <link rel="stylesheet" href="styles/styles.css">
+    <link rel="stylesheet" href="styles/responsive.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/leaflet.min.js"></script>
+    <script src="scripts/trailData.js"></script>
+    <script src="scripts/ui.js"></script>
+    <script src="scripts/main.js"></script>
+    <script src="scripts/map.js"></script>
+    <script src="scripts/reviews.js"></script>
+    <script src="scripts/weather.js"></script>
+</head>
+<body>
+    <header>
+        <div class="container">
+            <div class="header-content">
+                <div class="logo">
+                    <img src="imgs/logo.png" alt="TrailTrekker Logo" class="logo-img">
+                    TrailTrekker
+                </div>
+                <nav>
+                    <ul>
+                        <li><a href="index.html">Home</a></li>
+                        <li><a href="trails.html" class="nav-active">Trails</a></li>
+                        <li><a href="saved.html">My Treks</a></li>
+                    </ul>
+                </nav>
+            </div>
+        </div>
+    </header>
+
+    <main>
+        <!-- Search Section -->
+        <section class="search-section">
+            <div class="container">
+                <h1 class="page-title">Discover Hiking Trails</h1>
+                <form class="search-form" id="searchForm">
+                    <input type="text" class="search-input" id="searchInput" placeholder="Search trails by name or location...">
+                    <button type="submit" class="search-btn">Search</button>
+                </form>
+                
+                <div class="filters">
+                    <div class="filter-group">
+                        <label for="difficultyFilter">Difficulty</label>
+                        <select id="difficultyFilter">
+                            <option value="">All Difficulties</option>
+                            <option value="easy">Easy</option>
+                            <option value="moderate">Moderate</option>
+                            <option value="hard">Hard</option>
+                        </select>
+                    </div>
+                    <div class="filter-group">
+                        <label for="lengthFilter">Length</label>
+                        <select id="lengthFilter">
+                            <option value="">All Lengths</option>
+                            <option value="short">Short (< 3 miles)</option>
+                            <option value="medium">Medium (3-6 miles)</option>
+                            <option value="long">Long (> 6 miles)</option>
+                        </select>
+                    </div>
+                    <div class="filter-group">
+                        <label for="featuresFilter">Features</label>
+                        <select id="featuresFilter">
+                            <option value="">All Features</option>
+                            <option value="waterfall">Waterfall</option>
+                            <option value="dog-friendly">Dog Friendly</option>
+                            <option value="scenic-views">Scenic Views</option>
+                            <option value="wildlife">Wildlife</option>
+                            <option value="family-friendly">Family Friendly</option>
+                        </select>
+                    </div>
+                    <button type="button" class="btn btn-secondary" id="clearFilters">Clear Filters</button>
+                </div>
+            </div>
+        </section>
+
+        <!-- Trails Section -->
+        <section class="trails-section">
+            <div class="container">
+                <div class="results-header">
+                    <h2 id="resultsCount">Loading trails...</h2>
+                    <div class="view-toggle">
+                        <button class="btn btn-outline active" id="gridView">Grid</button>
+                        <button class="btn btn-outline" id="listView">List</button>
+                    </div>
+                </div>
+                <div id="trailsGrid" class="trails-grid">
+                    <div class="loading">
+                        <div class="spinner"></div>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- Trail Detail Modal -->
+    <div id="trailModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 class="modal-title" id="modalTitle">Trail Details</h2>
+                <span class="close" id="closeModal">&times;</span>
+            </div>
+            <div class="modal-body" id="modalBody">
+                <!-- Trail details will be loaded here -->
+            </div>
+        </div>
+    </div>
+
+    <footer>
+        <div class="container">
+            <p>&copy; 2025 TrailTrekker. Explore responsibly, leave no trace.</p>
+        </div>
+    </footer>
+</body>
+</html>
