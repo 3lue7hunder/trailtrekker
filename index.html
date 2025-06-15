@@ -7,16 +7,14 @@
     <link rel="icon" type="image/x-icon" href="imgs/favicon.ico">
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700&family=Open+Sans:wght@300;400;600&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/leaflet.css" />
+    <!-- Add your CSS files here -->
     <link rel="stylesheet" href="styles/styles.css">
     <link rel="stylesheet" href="styles/responsive.css">
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/leaflet.min.js"></script>
+    
+    <!-- Load JavaScript files in correct order -->
     <script src="scripts/trailData.js"></script>
     <script src="scripts/ui.js"></script>
     <script src="scripts/main.js"></script>
-    <script src="scripts/saved.js" defer></script>
-    <script src="scripts/map.js"></script>
-    <script src="scripts/reviews.js"></script>
-    <script src="scripts/weather.js"></script>
 </head>
 <body>
     <header>
@@ -97,5 +95,221 @@
             <p>&copy; 2025 TrailTrekker. Explore responsibly, leave no trace.</p>
         </div>
     </footer>
+
+    <!-- Add the modal for trail details -->
+    <div id="trailModal" class="modal" style="display: none;">
+        <div class="modal-content">
+            <span class="close" id="closeModal">&times;</span>
+            <h2 id="modalTitle"></h2>
+            <div id="modalBody"></div>
+        </div>
+    </div>
+
+    <script>
+        // Home page specific functionality
+        class HomePage {
+            constructor() {
+                this.trails = [];
+                this.init();
+            }
+
+            async init() {
+                try {
+                    // Load trail data
+                    this.trails = await TrailData.loadTrails();
+                    this.renderFeaturedTrails();
+                } catch (error) {
+                    console.error('Failed to load trails:', error);
+                    this.showError();
+                }
+            }
+
+            // Fisher-Yates shuffle algorithm for random selection
+            shuffleArray(array) {
+                const shuffled = [...array]; // Create a copy to avoid mutating original
+                for (let i = shuffled.length - 1; i > 0; i--) {
+                    const j = Math.floor(Math.random() * (i + 1));
+                    [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
+                }
+                return shuffled;
+            }
+
+            renderFeaturedTrails() {
+                const container = document.getElementById('featuredTrails');
+                if (!container) return;
+
+                // Get 3 random trails
+                const shuffledTrails = this.shuffleArray(this.trails);
+                const featuredTrails = shuffledTrails.slice(0, 3);
+
+                if (featuredTrails.length === 0) {
+                    container.innerHTML = '<p class="no-results">No trails available</p>';
+                    return;
+                }
+
+                container.innerHTML = featuredTrails.map(trail => this.createTrailCard(trail)).join('');
+
+                // Add click event listeners to cards
+                container.addEventListener('click', (e) => {
+                    const card = e.target.closest('.trail-card');
+                    if (!card) return;
+
+                    const trailId = parseInt(card.dataset.trailId, 10);
+                    if (isNaN(trailId)) return;
+
+                    // Check if clicked element is a button
+                    if (e.target.classList.contains('btn-primary')) {
+                        e.stopPropagation();
+                        this.showTrailDetails(trailId);
+                    }
+                    // Click on card itself
+                    else if (!e.target.classList.contains('btn')) {
+                        this.showTrailDetails(trailId);
+                    }
+                });
+            }
+
+            createTrailCard(trail) {
+                return `
+                    <div class="trail-card" data-trail-id="${trail.id}">
+                        <div class="trail-image"></div>
+                        <div class="trail-content">
+                            <div class="trail-header">
+                                <h3 class="trail-title">${trail.name}</h3>
+                                <div class="trail-rating">
+                                    <span>⭐</span>
+                                    <span>${trail.rating}</span>
+                                </div>
+                            </div>
+                            <div class="trail-info">
+                                <div class="trail-info-item">
+                                    <span>📍</span>
+                                    <span>${trail.location}</span>
+                                </div>
+                                <div class="trail-info-item">
+                                    <span>📏</span>
+                                    <span>${trail.length} miles</span>
+                                </div>
+                                <div class="trail-info-item">
+                                    <span>⬆️</span>
+                                    <span>${trail.elevation} ft</span>
+                                </div>
+                            </div>
+                            <div class="difficulty-badge difficulty-${trail.difficulty}">
+                                ${trail.difficulty}
+                            </div>
+                            <div class="trail-tags">
+                                ${trail.features.slice(0, 3).map(feature => 
+                                    `<span class="tag">${feature.replace(/-/g, ' ')}</span>`
+                                ).join('')}
+                            </div>
+                            <div class="trail-actions">
+                                <button class="btn btn-primary">
+                                    View Details
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            }
+
+            showTrailDetails(trailId) {
+                const trail = this.trails.find(t => t.id === trailId);
+                if (!trail) return;
+
+                const modal = document.getElementById('trailModal');
+                const modalTitle = document.getElementById('modalTitle');
+                const modalBody = document.getElementById('modalBody');
+
+                if (!modal || !modalTitle || !modalBody) return;
+
+                modalTitle.textContent = trail.name;
+                modalBody.innerHTML = `
+                    <div class="trail-details">
+                        <div class="trail-info-grid">
+                            <div class="info-item">
+                                <strong>Location:</strong> ${trail.location}
+                            </div>
+                            <div class="info-item">
+                                <strong>Length:</strong> ${trail.length} miles
+                            </div>
+                            <div class="info-item">
+                                <strong>Difficulty:</strong> ${trail.difficulty}
+                            </div>
+                            <div class="info-item">
+                                <strong>Elevation Gain:</strong> ${trail.elevation} ft
+                            </div>
+                            <div class="info-item">
+                                <strong>Rating:</strong> ⭐ ${trail.rating}
+                            </div>
+                            <div class="info-item">
+                                <strong>Estimated Time:</strong> ${trail.estimatedTime}
+                            </div>
+                        </div>
+                        
+                        <div class="trail-description">
+                            <h3>Description</h3>
+                            <p>${trail.description}</p>
+                        </div>
+                        
+                        <div class="trail-features">
+                            <h3>Features</h3>
+                            <div class="features-list">
+                                ${trail.features.map(feature => 
+                                    `<span class="feature-tag">${feature.replace(/-/g, ' ')}</span>`
+                                ).join('')}
+                            </div>
+                        </div>
+                        
+                        <div class="trail-tips">
+                            <h3>Tips</h3>
+                            <p>${trail.tips}</p>
+                        </div>
+                        
+                        <div class="trail-actions">
+                            <a href="trails.html" class="btn btn-primary">View All Trails</a>
+                        </div>
+                    </div>
+                `;
+
+                modal.style.display = 'block';
+            }
+
+            showError() {
+                const container = document.getElementById('featuredTrails');
+                if (container) {
+                    container.innerHTML = `
+                        <div class="error-message">
+                            <p>Failed to load featured trails. Please try again later.</p>
+                        </div>
+                    `;
+                }
+            }
+        }
+
+        // Initialize home page when DOM is loaded
+        document.addEventListener('DOMContentLoaded', () => {
+            new HomePage();
+        });
+
+        // Modal close functionality
+        document.addEventListener('DOMContentLoaded', () => {
+            const closeModal = document.getElementById('closeModal');
+            const modal = document.getElementById('trailModal');
+
+            if (closeModal) {
+                closeModal.addEventListener('click', () => {
+                    if (modal) modal.style.display = 'none';
+                });
+            }
+
+            // Close modal on outside click
+            window.addEventListener('click', (e) => {
+                if (e.target === modal) {
+                    modal.style.display = 'none';
+                }
+            });
+        });
+    </script>
 </body>
 </html>

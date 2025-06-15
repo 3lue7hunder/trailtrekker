@@ -1,4 +1,4 @@
-// weather.js
+// weather.js - Updated with integration
 class WeatherService {
     constructor() {
         this.apiKey = '5a7d9135dd99424080f0abc07c127c3b';
@@ -69,7 +69,7 @@ class WeatherService {
             feelsLike: Math.round(data.app_temp),
             humidity: data.rh,
             description: data.weather.description,
-            icon: data.weather.icon,  // Weatherbit icon code
+            icon: data.weather.icon,
             windSpeed: Math.round(data.wind_spd * 2.237), // Convert m/s to mph
             windDirection: data.wind_dir,
             visibility: Math.round(data.vis / 1609.34), // meters to miles
@@ -98,7 +98,7 @@ class WeatherService {
             feelsLike: 75,
             humidity: 65,
             description: 'Partly cloudy',
-            icon: 'c02d',  // Example Weatherbit icon
+            icon: 'c02d',
             windSpeed: 8,
             windDirection: 180,
             visibility: 10,
@@ -127,4 +127,124 @@ class WeatherService {
         }
         return forecast;
     }
+
+    // NEW: Render weather data to HTML
+    renderCurrentWeather(weatherData, containerId) {
+        const container = document.getElementById(containerId);
+        if (!container) return;
+
+        const formatTime = (date) => {
+            return date.toLocaleTimeString('en-US', { 
+                hour: 'numeric', 
+                minute: '2-digit',
+                hour12: true 
+            });
+        };
+
+        container.innerHTML = `
+            <div class="weather-current">
+                <div class="weather-main">
+                    <div class="weather-temp">${weatherData.temperature}°F</div>
+                    <div class="weather-desc">${weatherData.description}</div>
+                    <div class="weather-feels">Feels like ${weatherData.feelsLike}°F</div>
+                </div>
+                <div class="weather-details">
+                    <div class="weather-detail">
+                        <span class="label">Humidity:</span>
+                        <span class="value">${weatherData.humidity}%</span>
+                    </div>
+                    <div class="weather-detail">
+                        <span class="label">Wind:</span>
+                        <span class="value">${weatherData.windSpeed} mph</span>
+                    </div>
+                    <div class="weather-detail">
+                        <span class="label">UV Index:</span>
+                        <span class="value">${weatherData.uvIndex}</span>
+                    </div>
+                    <div class="weather-detail">
+                        <span class="label">Visibility:</span>
+                        <span class="value">${weatherData.visibility} mi</span>
+                    </div>
+                </div>
+            </div>
+        `;
+    }
+
+    // NEW: Render forecast data to HTML
+    renderForecast(forecastData, containerId) {
+        const container = document.getElementById(containerId);
+        if (!container) return;
+
+        const formatDate = (date) => {
+            return date.toLocaleDateString('en-US', { 
+                weekday: 'short', 
+                month: 'short', 
+                day: 'numeric' 
+            });
+        };
+
+        container.innerHTML = `
+            <div class="weather-forecast">
+                ${forecastData.map(day => `
+                    <div class="forecast-day">
+                        <div class="forecast-date">${formatDate(day.date)}</div>
+                        <div class="forecast-condition">${day.condition}</div>
+                        <div class="forecast-temps">
+                            <span class="high">${day.high}°</span>
+                            <span class="low">${day.low}°</span>
+                        </div>
+                        <div class="forecast-details">
+                            <div class="forecast-detail">🌧️ ${day.precipitation}%</div>
+                            <div class="forecast-detail">💨 ${day.windSpeed} mph</div>
+                        </div>
+                    </div>
+                `).join('')}
+            </div>
+        `;
+    }
 }
+
+// WeatherManager class to handle weather integration
+class WeatherManager {
+    constructor() {
+        this.weatherService = new WeatherService();
+    }
+
+    // Load weather for a specific trail and display in modal
+    async loadTrailWeather(trail) {
+        if (!trail.coordinates || trail.coordinates.length < 2) {
+            console.warn('No coordinates available for weather data');
+            return;
+        }
+
+        const [lat, lon] = trail.coordinates;
+        
+        try {
+            // Load current weather and forecast
+            const [currentWeather, forecast] = await Promise.all([
+                this.weatherService.getCurrentWeather(lat, lon),
+                this.weatherService.getForecast(lat, lon, 3) // 3-day forecast
+            ]);
+
+            // Display weather data
+            this.weatherService.renderCurrentWeather(currentWeather, 'currentWeather');
+            this.weatherService.renderForecast(forecast, 'weatherForecast');
+        } catch (error) {
+            console.error('Failed to load weather data:', error);
+            this.showWeatherError();
+        }
+    }
+
+    showWeatherError() {
+        const currentContainer = document.getElementById('currentWeather');
+        const forecastContainer = document.getElementById('weatherForecast');
+        
+        const errorMessage = '<p class="weather-error">Weather data unavailable</p>';
+        
+        if (currentContainer) currentContainer.innerHTML = errorMessage;
+        if (forecastContainer) forecastContainer.innerHTML = errorMessage;
+    }
+}
+
+// Initialize weather manager globally
+window.weatherManager = new WeatherManager();
