@@ -209,7 +209,18 @@ class TrailTrekker {
         }
 
         trailsGrid.innerHTML = trails.map(trail => this.createTrailCard(trail)).join('');
+
+        if (window.mapManager && this.trails.length > 0) {
+    setTimeout(() => {
+        const overviewMapContainer = document.getElementById('overviewMap');
+        if (overviewMapContainer) {
+            window.mapManager.createOverviewMap('overviewMap', this.trails);
+        }
+    }, 500);
     }
+    }
+
+    
 
     createTrailCard(trail) {
         return `
@@ -272,97 +283,111 @@ class TrailTrekker {
 
     if (!modal || !modalTitle || !modalBody) return;
 
-    modalTitle.textContent = trail.name;
-    modalBody.innerHTML = `
-        <div class="trail-details">
-            <div class="trail-info-grid">
-                <div class="info-item">
-                    <strong>Location:</strong> ${trail.location}
-                </div>
-                <div class="info-item">
-                    <strong>Length:</strong> ${trail.length} miles
-                </div>
-                <div class="info-item">
-                    <strong>Difficulty:</strong> ${trail.difficulty}
-                </div>
-                <div class="info-item">
-                    <strong>Elevation Gain:</strong> ${trail.elevation} ft
-                </div>
-                <div class="info-item">
-                    <strong>Rating:</strong> ⭐ ${trail.rating}
-                </div>
-                <div class="info-item">
-                    <strong>Estimated Time:</strong> ${trail.estimatedTime}
-                </div>
+   // In your showTrailModal method in main.js, replace the modalBody.innerHTML with this:
+
+modalBody.innerHTML = `
+    <div class="trail-details">
+        <div class="trail-info-grid">
+            <div class="info-item">
+                <strong>Location:</strong> ${trail.location}
             </div>
-            
-            <div class="trail-description">
-                <h3>Description</h3>
-                <p>${trail.description}</p>
+            <div class="info-item">
+                <strong>Length:</strong> ${trail.length} miles
             </div>
-            
-            <div class="trail-features">
-                <h3>Features</h3>
-                <div class="features-list">
-                    ${trail.features.map(feature => 
-                        `<span class="feature-tag">${feature.replace(/-/g, ' ')}</span>`
-                    ).join('')}
-                </div>
+            <div class="info-item">
+                <strong>Difficulty:</strong> ${trail.difficulty}
             </div>
-            
-            <div class="trail-tips">
-                <h3>Tips</h3>
-                <p>${trail.tips}</p>
+            <div class="info-item">
+                <strong>Elevation Gain:</strong> ${trail.elevation} ft
             </div>
-            
-            <!-- Add Reviews Section -->
-            <div class="trail-reviews">
-                <h3>Reviews</h3>
-                <div id="reviewsList">
-                    <!-- Reviews will be loaded here -->
-                </div>
-                
-                <div class="add-review">
-                    <h4>Add Your Review</h4>
-                    <form id="reviewForm" data-trail-id="${trail.id}">
-                        <div class="form-group">
-                            <label for="reviewerName">Your Name:</label>
-                            <input type="text" id="reviewerName" name="reviewerName" required>
-                        </div>
-                        <div class="form-group">
-                            <label for="reviewRating">Rating:</label>
-                            <select id="reviewRating" name="reviewRating" required>
-                                <option value="">Select Rating</option>
-                                <option value="5">5 - Excellent</option>
-                                <option value="4">4 - Very Good</option>
-                                <option value="3">3 - Good</option>
-                                <option value="2">2 - Fair</option>
-                                <option value="1">1 - Poor</option>
-                            </select>
-                        </div>
-                        <div class="form-group">
-                            <label for="reviewComment">Your Review:</label>
-                            <textarea id="reviewComment" name="reviewComment" rows="4" required></textarea>
-                        </div>
-                        <button type="submit" class="btn btn-primary">Submit Review</button>
-                    </form>
-                </div>
+            <div class="info-item">
+                <strong>Rating:</strong> ⭐ ${trail.rating}
             </div>
-            
-            <div class="trail-actions">
-                <button class="btn btn-secondary" onclick="app.toggleSaveTrail(${trail.id})">
-                    ${isSaved ? 'Saved ✓' : 'Save Trail'}
-                </button>
+            <div class="info-item">
+                <strong>Estimated Time:</strong> ${trail.estimatedTime}
             </div>
         </div>
-    `;
+        
+        <!-- ADD THIS MAP CONTAINER -->
+        <div class="trail-map-section">
+            <h3>Location</h3>
+            <div id="trailMap" class="map-container" style="height: 300px; width: 100%; margin: 1rem 0;"></div>
+        </div>
+        
+        <div class="trail-description">
+            <h3>Description</h3>
+            <p>${trail.description}</p>
+        </div>
+        
+        <div class="trail-features">
+            <h3>Features</h3>
+            <div class="features-list">
+                ${trail.features.map(feature => 
+                    `<span class="feature-tag">${feature.replace(/-/g, ' ')}</span>`
+                ).join('')}
+            </div>
+        </div>
+        
+        <div class="trail-tips">
+            <h3>Tips</h3>
+            <p>${trail.tips}</p>
+        </div>
+        
+        <div class="trail-reviews">
+            <h3>Reviews</h3>
+            <div id="reviewsList">
+                <!-- Reviews will be loaded here -->
+            </div>
+            
+            <div class="add-review">
+                <h4>Add Your Review</h4>
+                <form id="reviewForm" data-trail-id="${trail.id}">
+                    <div class="form-group">
+                        <label for="reviewerName">Your Name:</label>
+                        <input type="text" id="reviewerName" name="reviewerName" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="reviewRating">Rating:</label>
+                        <select id="reviewRating" name="reviewRating" required>
+                            <option value="">Select Rating</option>
+                            <option value="5">5 - Excellent</option>
+                            <option value="4">4 - Very Good</option>
+                            <option value="3">3 - Good</option>
+                            <option value="2">2 - Fair</option>
+                            <option value="1">1 - Poor</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="reviewComment">Your Review:</label>
+                        <textarea id="reviewComment" name="reviewComment" rows="4" required></textarea>
+                    </div>
+                    <button type="submit" class="btn btn-primary">Submit Review</button>
+                </form>
+            </div>
+        </div>
+        
+        <div class="trail-actions">
+            <button class="btn btn-secondary" onclick="app.toggleSaveTrail(${trail.id})">
+                ${isSaved ? 'Saved ✓' : 'Save Trail'}
+            </button>
+        </div>
+    </div>
+`;
 
-    modal.style.display = 'block';
-    
-    // Render reviews after modal is shown
-    if (window.reviewManager) {
-        window.reviewManager.renderReviews(trail.id);
-    }
+modal.style.display = 'block';
+
+// Initialize the map after modal is shown
+if (window.mapManager && trail.coordinates) {
+    // Small delay to ensure modal is rendered
+    setTimeout(() => {
+        window.mapManager.initializeModalMap(trail);
+    }, 100);
+}
+
+// Render reviews after modal is shown
+if (window.reviewManager) {
+    window.reviewManager.renderReviews(trail.id);
+}
     
 }
 

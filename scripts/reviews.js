@@ -64,12 +64,10 @@ loadReviews() {
             ]
         };
     }
-    return this.reviews;
+    return this.reviews;w
 }
 
 saveReviews() {
-    // For Claude artifacts, just keep in memory
-    // In a real app, you would use localStorage or send to backend
     console.log('Reviews saved to memory');
 }
 
