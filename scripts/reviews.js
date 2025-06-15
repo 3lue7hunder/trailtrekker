@@ -20,9 +20,10 @@ class ReviewManager {
         });
     }
 
-    loadReviews() {
-        // Load reviews from memory (no localStorage in Claude artifacts)
-        return this.reviews || {
+loadReviews() {
+    // For Claude artifacts, use in-memory storage with default data
+    if (!this.reviews) {
+        this.reviews = {
             1: [
                 {
                     id: 1,
@@ -63,12 +64,14 @@ class ReviewManager {
             ]
         };
     }
+    return this.reviews;
+}
 
-    saveReviews() {
-        // In a real app, this would save to localStorage or backend
-        // For Claude artifacts, we keep it in memory
-        console.log('Reviews saved to memory');
-    }
+saveReviews() {
+    // For Claude artifacts, just keep in memory
+    // In a real app, you would use localStorage or send to backend
+    console.log('Reviews saved to memory');
+}
 
     submitReview(event, trailId) {
         event.preventDefault();
@@ -249,3 +252,17 @@ style.textContent = `
     }
 `;
 document.head.appendChild(style);
+
+// Initialize review manager and make it globally accessible
+document.addEventListener('DOMContentLoaded', () => {
+    window.reviewManager = new ReviewManager();
+});
+
+// Also make it available immediately if DOM is already loaded
+if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', () => {
+        window.reviewManager = new ReviewManager();
+    });
+} else {
+    window.reviewManager = new ReviewManager();
+}

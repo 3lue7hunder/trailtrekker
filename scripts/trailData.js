@@ -28,8 +28,8 @@ class TrailData {
         const data = await response.json();
         return data.trails || [];
     }
-
-    // Embedded trail data (using the data from your paste.txt)
+    
+    // Embedded trail data 
     static getEmbeddedTrails() {
         return [
             {
