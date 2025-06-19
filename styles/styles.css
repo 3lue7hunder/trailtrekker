@@ -682,7 +682,6 @@ nav ul {
     margin: 0;
     padding: 0;
 }
-
 /* Mobile styles - make sure hamburger shows on mobile */
 @media (max-width: 768px) {
     .hamburger {
@@ -705,15 +704,12 @@ nav ul {
         box-shadow: -5px 0 15px rgba(0,0,0,0.1);
         z-index: 1000;
     }
-
     nav ul.active {
         right: 0;
     }
-
     nav ul li {
         margin-bottom: 1rem;
     }
-
     nav ul li a {
         display: block;
         padding: 1rem;
@@ -722,14 +718,12 @@ nav ul {
         border-radius: 0;
         color: var(--dark-gray); /* Ensure text is visible in mobile menu */
     }
-
     .header-content {
         flex-direction: row;
         justify-content: space-between;
         align-items: center;
     }
 }
-
 @media (max-width: 480px) {
     nav ul {
         width: 100%;
