@@ -9,32 +9,40 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/leaflet.css" />
     <link rel="stylesheet" href="styles/styles.css">
     <link rel="stylesheet" href="styles/responsive.css">
+    <!-- Load scripts -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/leaflet.min.js"></script>
     <script src="scripts/trailData.js" defer></script>
     <script src="scripts/ui.js" defer></script>
+    <script src="scripts/weather.js" defer></script>
     <script src="scripts/main.js" defer></script>
     <script src="scripts/saved.js" defer></script>
     <script src="scripts/map.js" defer></script>
+    <script src="scripts/reviews.js" defer></script>
 </head>
 <body>
-    <header>
-        <div class="container">
-            <div class="header-content">
-                <div class="logo">
-                    <img src="imgs/logo.png" alt="TrailTrekker Logo" class="logo-img">
-                    TrailTrekker
-                </div>
-                <nav>
-                    <ul>
-                        <li><a href="index.html">Home</a></li>
-                        <li><a href="trails.html">Trails</a></li>
-                        <li><a href="saved.html" class="nav-active">My Treks</a></li>
-                    </ul>
-                </nav>
+  <header>
+    <div class="container">
+        <div class="header-content">
+            <div class="logo">
+                <img src="images/trail-logo.png" alt="TrailTrekker Logo" class="logo-img" width="110px">
+                TrailTrekker
             </div>
+            <nav>
+                <button class="hamburger" id="hamburger" aria-label="Toggle navigation menu">
+                    <span></span>
+                    <span></span>
+                    <span></span>
+                </button>
+                <ul class="nav-menu" id="navMenu">
+                    <li><a href="index.html" class="nav-active">Home</a></li>
+                    <li><a href="trails.html">Trails</a></li>
+                    <li><a href="saved.html">My Treks</a></li>
+                </ul>
+            </nav>
         </div>
-    </header>
-
+    </div>
+    <div class="nav-overlay" id="navOverlay"></div>
+</header>
     <main>
         <!-- Header Section -->
         <section class="page-header">
@@ -72,7 +80,6 @@
                     </div>
                 </div>
                 <div id="emptyState" class="empty-state hidden">
-                    <div class="empty-icon">🥾</div>
                     <h3>No Saved Trails Yet</h3>
                     <p>Start exploring and save your favorite trails to see them here!</p>
                     <a href="trails.html" class="btn btn-primary">Discover Trails</a>
@@ -96,7 +103,7 @@
 
     <footer>
         <div class="container">
-            <p>&copy; 2025 TrailTrekker. Explore responsibly, leave no trace.</p>
+            <p>&copy; 2025 TrailTrekker. Explore Responsibly, Leave No Trace.</p>
         </div>
     </footer>
 </body>

@@ -157,10 +157,45 @@ class UIManager {
         }
     }
 
+    // Helper method to get trail image URL
+    getTrailImageUrl(trail) {
+        // If trail has an image property, use it
+        if (trail.image) {
+            return trail.image;
+        }
+        
+        // Generate image filename based on trail name to match your existing files
+        const imageName = trail.name.toLowerCase()
+            .replace(/[^a-z0-9\s]/g, '') // Remove special characters
+            .replace(/\s+/g, '_') // Replace spaces with underscores to match your filenames
+            .trim();
+        
+        return `images/${imageName}.jpg`;
+    }
+
+    // Helper method to get fallback image
+    getFallbackImage() {
+        return 'images/default-trail.jpg';
+    }
+
     renderTrailCard(trail, isSaved = false) {
+        const imageUrl = this.getTrailImageUrl(trail);
+        const fallbackUrl = this.getFallbackImage();
+        
         return `
             <div class="trail-card" onclick="app.showTrailDetails(${trail.id})">
-                <div class="trail-image"></div>
+                <div class="trail-image">
+                    <img src="${imageUrl}" 
+                         alt="${trail.name}" 
+                         onerror="this.onerror=null; this.src='${fallbackUrl}';"
+                         loading="lazy">
+                    <div class="trail-overlay">
+                        <div class="trail-quick-info">
+                            <span class="trail-time">⏱️ ${trail.estimatedTime}</span>
+                            <span class="trail-season">📅 ${trail.season}</span>
+                        </div>
+                    </div>
+                </div>
                 <div class="trail-content">
                     <div class="trail-header">
                         <h3 class="trail-title">${trail.name}</h3>
@@ -189,7 +224,7 @@ class UIManager {
                     <div class="trail-tags">
                         ${trail.features.slice(0, 3).map(feature => 
                             `<span class="tag">${feature.replace('-', ' ')}</span>`
-                        ).join('')}
+                        ).join(' ')}
                     </div>
                     <div class="trail-actions" onclick="event.stopPropagation()">
                         <button class="btn btn-primary" onclick="app.showTrailDetails(${trail.id})">
@@ -282,6 +317,59 @@ class UIManager {
         
         return stars;
     }
+
+    setupHamburgerMenu() {
+    const hamburger = document.getElementById('hamburger');
+    const navMenu = document.getElementById('navMenu');
+    const navOverlay = document.getElementById('navOverlay');
+
+    if (!hamburger || !navMenu || !navOverlay) return;
+
+    // Toggle menu on hamburger click
+    hamburger.addEventListener('click', () => {
+        const isOpen = navMenu.classList.contains('active');
+        
+        if (isOpen) {
+            this.closeHamburgerMenu();
+        } else {
+            this.openHamburgerMenu();
+        }
+    });
+
+    // Close menu on overlay click
+    navOverlay.addEventListener('click', () => {
+        this.closeHamburgerMenu();
+    });
+
+    // Close menu on navigation link click
+    document.querySelectorAll('.nav-menu a').forEach(link => {
+        link.addEventListener('click', () => {
+            this.closeHamburgerMenu();
+        });
+    });
+}
+
+openHamburgerMenu() {
+    const hamburger = document.getElementById('hamburger');
+    const navMenu = document.getElementById('navMenu');
+    const navOverlay = document.getElementById('navOverlay');
+
+    hamburger?.classList.add('active');
+    navMenu?.classList.add('active');
+    navOverlay?.classList.add('active');
+    document.body.style.overflow = 'hidden';
+}
+
+closeHamburgerMenu() {
+    const hamburger = document.getElementById('hamburger');
+    const navMenu = document.getElementById('navMenu');
+    const navOverlay = document.getElementById('navOverlay');
+
+    hamburger?.classList.remove('active');
+    navMenu?.classList.remove('active');
+    navOverlay?.classList.remove('active');
+    document.body.style.overflow = '';
+}
 }
 
 // Initialize UI Manager when DOM is loaded

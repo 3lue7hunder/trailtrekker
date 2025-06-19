@@ -130,9 +130,39 @@ class SavedTrailsController {
     }
 
     createTrailCard(trail) {
+        // Helper function to get trail image URL (same as in main.js)
+        const getTrailImageUrl = (trail) => {
+            // If trail has an image property, use it
+            if (trail.image) {
+                return trail.image;
+            }
+            
+            // Generate image filename based on trail name
+            const imageName = trail.name.toLowerCase()
+                .replace(/[^a-z0-9\s]/g, '') // Remove special characters
+                .replace(/\s+/g, '_') // Replace spaces with underscores
+                .trim();
+            
+            return `images/${imageName}.jpg`;
+        };
+        
+        const imageUrl = getTrailImageUrl(trail);
+        const fallbackUrl = 'images/default-trail.jpg'; // Make sure you have this fallback image
+        
         return `
             <div class="trail-card" data-trail-id="${trail.id}">
-                <div class="trail-image"></div>
+                <div class="trail-image">
+                    <img src="${imageUrl}" 
+                         alt="${trail.name}" 
+                         onerror="this.onerror=null; this.src='${fallbackUrl}';"
+                         loading="lazy">
+                    <div class="trail-overlay">
+                        <div class="trail-quick-info">
+                            <span class="trail-time">⏱️ ${trail.estimatedTime}</span>
+                            <span class="trail-season">📅 ${trail.season}</span>
+                        </div>
+                    </div>
+                </div>
                 <div class="trail-content">
                     <div class="trail-header">
                         <h3 class="trail-title">${trail.name}</h3>
@@ -233,7 +263,7 @@ class SavedTrailsController {
                     <div class="features-list">
                         ${trail.features.map(feature => 
                             `<span class="feature-tag">${feature.replace(/-/g, ' ')}</span>`
-                        ).join('')}
+                        ).join(', ')}
                     </div>
                 </div>
                 

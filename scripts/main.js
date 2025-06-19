@@ -220,54 +220,82 @@ class TrailTrekker {
     }
     }
 
+   createTrailCard(trail) {
+    // Helper function to get trail image URL
+    const getTrailImageUrl = (trail) => {
+        // If trail has an image property, use it
+        if (trail.image) {
+            return trail.image;
+        }
+        
+        // Generate image filename based on trail name
+        const imageName = trail.name.toLowerCase()
+            .replace(/[^a-z0-9\s]/g, '') // Remove special characters
+            .replace(/\s+/g, '_') // Replace spaces with underscores
+            .trim();
+        
+        return `images/${imageName}.jpg`;
+    };
     
-
-    createTrailCard(trail) {
-        return `
-            <div class="trail-card" data-trail-id="${trail.id}">
-                <div class="trail-image"></div>
-                <div class="trail-content">
-                    <div class="trail-header">
-                        <h3 class="trail-title">${trail.name}</h3>
-                        <div class="trail-rating">
-                            <span>⭐</span>
-                            <span>${trail.rating}</span>
-                        </div>
-                    </div>
-                    <div class="trail-info">
-                        <div class="trail-info-item">
-                            <span>📍</span>
-                            <span>${trail.location}</span>
-                        </div>
-                        <div class="trail-info-item">
-                            <span>📏</span>
-                            <span>${trail.length} miles</span>
-                        </div>
-                        <div class="trail-info-item">
-                            <span>⬆️</span>
-                            <span>${trail.elevation} ft</span>
-                        </div>
-                    </div>
-                    <div class="difficulty-badge difficulty-${trail.difficulty}">
-                        ${trail.difficulty}
-                    </div>
-                    <div class="trail-tags">
-                        ${trail.features.slice(0, 3).map(feature => 
-                            `<span class="tag">${feature.replace(/-/g, ' ')}</span>`
-                        ).join('')}
-                    </div>
-                    <div class="trail-actions">
-                        <button class="btn btn-primary">
-                            View Details
-                        </button>
-                        <button class="btn btn-secondary">
-                            ${this.savedTrails.includes(trail.id) ? 'Saved ✓' : 'Save Trail'}
-                        </button>
+    const imageUrl = getTrailImageUrl(trail);
+    const fallbackUrl = 'images/default-trail.jpg'; // Make sure you have this fallback image
+    
+    return `
+        <div class="trail-card" data-trail-id="${trail.id}">
+            <div class="trail-image">
+                <img src="${imageUrl}" 
+                     alt="${trail.name}" 
+                     onerror="this.onerror=null; this.src='${fallbackUrl}';"
+                     loading="lazy">
+                <div class="trail-overlay">
+                    <div class="trail-quick-info">
+                        <span class="trail-time">⏱️ ${trail.estimatedTime}</span>
+                        <span class="trail-season">📅 ${trail.season}</span>
                     </div>
                 </div>
             </div>
-        `;
-    }
+            <div class="trail-content">
+                <div class="trail-header">
+                    <h3 class="trail-title">${trail.name}</h3>
+                    <div class="trail-rating">
+                        <span>⭐</span>
+                        <span>${trail.rating}</span>
+                    </div>
+                </div>
+                <div class="trail-info">
+                    <div class="trail-info-item">
+                        <span>📍</span>
+                        <span>${trail.location}</span>
+                    </div>
+                    <div class="trail-info-item">
+                        <span>📏</span>
+                        <span>${trail.length} miles</span>
+                    </div>
+                    <div class="trail-info-item">
+                        <span>⬆️</span>
+                        <span>${trail.elevation} ft</span>
+                    </div>
+                </div>
+                <div class="difficulty-badge difficulty-${trail.difficulty}">
+                    ${trail.difficulty}
+                </div>
+                <div class="trail-tags">
+                    ${trail.features.slice(0, 3).map(feature => 
+                        `<span class="tag">${feature.replace(/-/g, ' ')}</span>`
+                    ).join(' ')}
+                </div>
+                <div class="trail-actions">
+                    <button class="btn btn-primary">
+                        View Details
+                    </button>
+                    <button class="btn btn-secondary">
+                        ${this.savedTrails.includes(trail.id) ? 'Saved ✓' : 'Save Trail'}
+                    </button>
+                </div>
+            </div>
+        </div>
+    `;
+}
 
     showTrailDetails(trailId) {
         const trail = this.trails.find(t => t.id === trailId);
@@ -276,8 +304,7 @@ class TrailTrekker {
         this.showTrailModal(trail, this.savedTrails.includes(trailId));
     }
 
-  // Replace your showTrailModal method in main.js with this updated version:
-
+// Updated showTrailModal method with two-column layout
 showTrailModal(trail, isSaved) {
     const modal = document.getElementById('trailModal');
     const modalTitle = document.getElementById('modalTitle');
@@ -289,102 +316,108 @@ showTrailModal(trail, isSaved) {
 
     modalBody.innerHTML = `
         <div class="trail-details">
-            <div class="trail-info-grid">
-                <div class="info-item">
-                    <strong>Location:</strong> ${trail.location}
-                </div>
-                <div class="info-item">
-                    <strong>Length:</strong> ${trail.length} miles
-                </div>
-                <div class="info-item">
-                    <strong>Difficulty:</strong> ${trail.difficulty}
-                </div>
-                <div class="info-item">
-                    <strong>Elevation Gain:</strong> ${trail.elevation} ft
-                </div>
-                <div class="info-item">
-                    <strong>Rating:</strong> ⭐ ${trail.rating}
-                </div>
-                <div class="info-item">
-                    <strong>Estimated Time:</strong> ${trail.estimatedTime}
-                </div>
-            </div>
-            
-            <!-- WEATHER SECTION -->
-            <div class="weather-section">
-                <h3>Current Weather</h3>
-                <div id="currentWeather" class="weather-container">
-                    <div class="loading">Loading weather...</div>
+            <!-- Two Column Layout -->
+            <div class="modal-columns">
+                <!-- Left Column - Trail Information -->
+                <div class="modal-left-column">
+                    <div class="trail-info-grid">
+                        <div class="info-item">
+                            <strong>Location:</strong> ${trail.location}
+                        </div>
+                        <div class="info-item">
+                            <strong>Length:</strong> ${trail.length} miles
+                        </div>
+                        <div class="info-item">
+                            <strong>Difficulty:</strong> ${trail.difficulty}
+                        </div>
+                        <div class="info-item">
+                            <strong>Elevation Gain:</strong> ${trail.elevation} ft
+                        </div>
+                        <div class="info-item">
+                            <strong>Rating:</strong> ⭐ ${trail.rating}
+                        </div>
+                        <div class="info-item">
+                            <strong>Estimated Time:</strong> ${trail.estimatedTime}
+                        </div>
+                    </div>
+                    
+                    <div class="trail-description">
+                        <h3>Description</h3>
+                        <p>${trail.description}</p>
+                    </div>
+                    
+                    <div class="trail-features">
+                        <h3>Features</h3>
+                        <div class="features-list">
+                            ${trail.features.map(feature => 
+                                `<span class="feature-tag">${feature.replace(/-/g, ' ')}</span>`
+                            ).join(', ')}
+                        </div>
+                    </div>
+                    
+                    <div class="trail-tips">
+                        <h3>Tips</h3>
+                        <p>${trail.tips}</p>
+                    </div>
                 </div>
                 
-                <h3>3-Day Forecast</h3>
-                <div id="weatherForecast" class="forecast-container">
-                    <div class="loading">Loading forecast...</div>
+                <!-- Right Column - Weather Information -->
+                <div class="modal-right-column">
+                    <div class="weather-section">
+                        <h3>Current Weather</h3>
+                        <div id="currentWeather" class="weather-container">
+                            <div class="loading">Loading weather...</div>
+                        </div>
+                    </div>
                 </div>
             </div>
             
-            <!-- MAP SECTION -->
-            <div class="trail-map-section">
-                <h3>Location</h3>
-                <div id="trailMap" class="map-container" style="height: 300px; width: 100%; margin: 1rem 0;"></div>
-            </div>
-            
-            <div class="trail-description">
-                <h3>Description</h3>
-                <p>${trail.description}</p>
-            </div>
-            
-            <div class="trail-features">
-                <h3>Features</h3>
-                <div class="features-list">
-                    ${trail.features.map(feature => 
-                        `<span class="feature-tag">${feature.replace(/-/g, ' ')}</span>`
-                    ).join('')}
-                </div>
-            </div>
-            
-            <div class="trail-tips">
-                <h3>Tips</h3>
-                <p>${trail.tips}</p>
-            </div>
-            
-            <div class="trail-reviews">
-                <h3>Reviews</h3>
-                <div id="reviewsList">
-                    <!-- Reviews will be loaded here -->
+            <!-- Full Width Sections Below -->
+            <div class="modal-full-width">
+                <!-- MAP SECTION -->
+                <div class="trail-map-section">
+                    <h3>Location</h3>
+                    <div id="trailMap" class="map-container" style="height: 300px; width: 100%; margin: 1rem 0;"></div>
                 </div>
                 
-                <div class="add-review">
-                    <h4>Add Your Review</h4>
-                    <form id="reviewForm" data-trail-id="${trail.id}">
-                        <div class="form-group">
-                            <label for="reviewerName">Your Name:</label>
-                            <input type="text" id="reviewerName" name="reviewerName" required>
-                        </div>
-                        <div class="form-group">
-                            <label for="reviewRating">Rating:</label>
-                            <select id="reviewRating" name="reviewRating" required>
-                                <option value="">Select Rating</option>
-                                <option value="5">5 - Excellent</option>
-                                <option value="4">4 - Very Good</option>
-                                <option value="3">3 - Good</option>
-                                <option value="2">2 - Fair</option>
-                                <option value="1">1 - Poor</option>
-                            </select>
-                        </div>
-                        <div class="form-group">
-                            <label for="reviewComment">Your Review:</label>
-                            <textarea id="reviewComment" name="reviewComment" rows="4" required></textarea>
-                        </div>
-                        <button type="submit" class="btn btn-primary">Submit Review</button>
-                    </form>
+                <div class="trail-reviews">
+                    <h3>Reviews</h3>
+                    <div id="reviewsList">
+                        <!-- Reviews will be loaded here -->
+                    </div>
+                    
+                    <div class="add-review">
+                        <h4>Add Your Review</h4>
+                        <form id="reviewForm" data-trail-id="${trail.id}">
+                            <div class="form-group">
+                                <label for="reviewerName">Your Name:</label>
+                                <input type="text" id="reviewerName" name="reviewerName" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="reviewRating">Rating:</label>
+                                <select id="reviewRating" name="reviewRating" required>
+                                    <option value="">Select Rating</option>
+                                    <option value="5">5 - Excellent</option>
+                                    <option value="4">4 - Very Good</option>
+                                    <option value="3">3 - Good</option>
+                                    <option value="2">2 - Fair</option>
+                                    <option value="1">1 - Poor</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label for="reviewComment">Your Review:</label>
+                                <textarea id="reviewComment" name="reviewComment" rows="4" required></textarea>
+                            </div>
+                            <button type="submit" class="btn btn-primary">Submit Review</button>
+                        </form>
+                    </div>
                 </div>
-            </div>
-            
-            <div class="trail-actions">
-                <button class="btn btn-secondary" onclick="app.toggleSaveTrail(${trail.id})">
-                    ${isSaved ? 'Saved ✓' : 'Save Trail'}
-                </button>
+                
+                <div class="trail-actions">
+                    <button class="btn btn-secondary" onclick="app.toggleSaveTrail(${trail.id})">
+                        ${isSaved ? 'Saved ✓' : 'Save Trail'}
+                    </button>
+                </div>
             </div>
         </div>
     `;

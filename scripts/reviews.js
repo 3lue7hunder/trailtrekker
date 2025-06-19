@@ -229,7 +229,7 @@ style.textContent = `
     }
     
     .btn-helpful {
-        background: none;
+        background: #f0f0f0;
         border: 1px solid #ddd;
         padding: 0.5rem 1rem;
         border-radius: 4px;
@@ -239,7 +239,7 @@ style.textContent = `
     }
     
     .btn-helpful:hover {
-        background: #f0f0f0;
+        background: gray;
         border-color: #4A7C59;
     }
     

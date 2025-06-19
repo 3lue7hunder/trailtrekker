@@ -31,7 +31,11 @@ header {
     background-color: var(--forest-green);
     color: white;
     padding: 1rem 0;
-    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+    
+}
+
+.title {
+    margin-left: 20px;
 }
 
 .header-content {
@@ -49,15 +53,11 @@ header {
     gap: 10px;
 }
 
-.logo::before {
-    content: "🥾";
-    font-size: 1.5rem;
-}
-
 nav ul {
     display: flex;
     list-style: none;
     gap: 2rem;
+    font-size: 23px;
 }
 
 nav a {
@@ -73,7 +73,7 @@ nav a:hover {
 
 /* Hero Section */
 .hero {
-    background: linear-gradient(135deg, var(--forest-green), #2d5a3d);
+    background: #2d5a3d;
     color: white;
     padding: 4rem 0;
     text-align: center;
@@ -228,7 +228,7 @@ nav a:hover {
     align-items: center;
     gap: 0.3rem;
     font-size: 0.9rem;
-    color: #666;
+    color: var(--golden-yellow);
 }
 
 .difficulty-badge {
@@ -263,11 +263,12 @@ nav a:hover {
 }
 
 .tag {
-    background: var(--off-white);
-    color: var(--forest-green);
+    background: var(--forest-green);
+    color: beige;
     padding: 0.2rem 0.6rem;
     border-radius: 15px;
     font-size: 0.8rem;
+    font-weight: bold;
     border: 1px solid var(--light-gray);
 }
 
@@ -287,6 +288,9 @@ nav a:hover {
     display: inline-block;
     text-align: center;
     transition: all 0.3s ease;
+    color: black;
+    background-color: var(--golden-yellow);
+ 
 }
 
 .btn-primary {
@@ -300,11 +304,16 @@ nav a:hover {
 
 .btn-secondary {
     background: var(--golden-yellow);
-    color: var(--dark-gray);
+    color:black;
+    
 }
 
 .btn-secondary:hover {
     background: #e6ad42;
+}
+
+#all {
+    margin-top: 30px;
 }
 
 /* Modal */
@@ -322,7 +331,7 @@ nav a:hover {
 .modal-content {
     background-color: white;
     margin: 2% auto;
-    padding: 0;
+    padding: 10px;
     border-radius: 12px;
     width: 90%;
     max-width: 800px;
@@ -463,4 +472,213 @@ footer {
 
 .hidden {
     display: none;
+}
+
+.trail-image {
+    position: relative;
+    height: 200px;
+    overflow: hidden;
+    border-radius: 8px 8px 0 0;
+}
+
+.trail-image img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 0.3s ease;
+}
+
+.trail-card:hover .trail-image img {
+    transform: scale(1.05);
+}
+
+.trail-overlay {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    background: linear-gradient(transparent, rgba(0,0,0,0.7));
+    padding: 1rem;
+}
+
+.trail-quick-info {
+    display: flex;
+    justify-content: space-between;
+    color: white;
+    font-size: 0.9rem;
+}
+
+/* Modal Two-Column Layout */
+.modal-columns {
+    display: flex;
+    gap: 2rem;
+    margin-bottom: 2rem;
+}
+
+.modal-left-column {
+    flex: 1;
+    min-width: 0; /* Prevents flex item from overflowing */
+}
+
+.modal-right-column {
+    flex: 0 0 300px; /* Fixed width for weather column */
+    min-width: 300px;
+}
+
+.modal-full-width {
+    width: 100%;
+}
+
+/* Weather Section Styling */
+.weather-section {
+    background: #f8f9fa;
+    border-radius: 8px;
+    padding: 1.5rem;
+    border: 1px solid #e9ecef;
+}
+
+.weather-section h3 {
+    margin-top: 0;
+    margin-bottom: 1rem;
+    color: black;
+    font-size: 1.1rem;
+}
+
+.weather-container {
+    min-height: 150px;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    .modal-columns {
+        flex-direction: column;
+        gap: 1.5rem;
+    }
+    
+    .modal-right-column {
+        flex: 1;
+        min-width: auto;
+    }
+}
+
+/* Optional: Style the weather data display */
+.weather-current {
+    text-align: center;
+}
+
+.weather-main {
+    margin-bottom: 1rem;
+}
+
+.weather-temp {
+    font-size: 2rem;
+    font-weight: bold;
+    color: black;
+    margin-bottom: 0.5rem;
+}
+
+.weather-desc {
+    font-size: 1.1rem;
+    color: black;
+    margin-bottom: 0.5rem;
+    text-transform: capitalize;
+}
+
+.weather-feels {
+    font-size: 0.9rem;
+    color: black;
+    margin-bottom: 1rem;
+}
+
+.weather-details {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 0.5rem;
+    text-align: left;
+}
+
+.weather-detail {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0.5rem;
+    background: white;
+    border-radius: 4px;
+    border: 1px solid #e9ecef;
+}
+
+.weather-detail .label {
+    font-weight: 500;
+    color: #495057;
+}
+
+.weather-detail .value {
+    font-weight: bold;
+    color: #2c3e50;
+}
+
+/* Hamburger Menu Styles */
+.hamburger {
+    display: none;
+    flex-direction: column;
+    cursor: pointer;
+    padding: 0.5rem;
+    background: none;
+    border: none;
+    z-index: 1001;
+}
+
+.hamburger span {
+    width: 25px;
+    height: 3px;
+    background: var(--forest-green);
+    margin: 3px 0;
+    transition: all 0.3s ease;
+    border-radius: 2px;
+}
+
+/* Hamburger Animation */
+.hamburger.active span:nth-child(1) {
+    transform: rotate(45deg) translate(5px, 5px);
+}
+
+.hamburger.active span:nth-child(2) {
+    opacity: 0;
+}
+
+.hamburger.active span:nth-child(3) {
+    transform: rotate(-45deg) translate(7px, -6px);
+}
+
+/* Mobile Menu Overlay */
+.nav-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100vh;
+    background: rgba(0, 0, 0, 0.5);
+    backdrop-filter: blur(5px);
+    opacity: 0;
+    visibility: hidden;
+    transition: all 0.3s ease;
+    z-index: 999;
+}
+
+.nav-overlay.active {
+    opacity: 1;
+    visibility: visible;
+}
+
+/* Update existing nav styles */
+nav {
+    position: relative;
+}
+
+nav ul {
+    display: flex;
+    list-style: none;
+    gap: 2rem;
+    margin: 0;
+    padding: 0;
 }
